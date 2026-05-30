@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초현실주의 미술 감상 AI 연동 워크시트</title>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --accent: #db2777;
+            --accent-light: #fce7f3;
+            --text: #0f172a;
+            --dashboard-bg: #fafafa;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color); color: var(--text);
+            margin: 0; padding: 15px; display: flex; justify-content: center;
+        }
+        .container {
+            max-width: 1200px; width: 100%; background: var(--card-bg);
+            padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;
+        }
+        .title-area h1 { margin: 0; font-size: 20px; color: var(--primary); }
+        .title-area p { margin: 5px 0 0 0; color: #64748b; font-size: 12px; }
+        
+        .lang-buttons button {
+            background: #e2e8f0; border: none; padding: 6px 10px;
+            margin-left: 2px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px;
+        }
+        .lang-buttons button.active { background: var(--primary); color: white; }
+
+        .main-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; margin-top: 15px; }
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .section-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #475569; margin-top: 15px; }
+        
+        .save-indicator { background: #e0f2fe; color: #0369a1; padding: 8px 12px; border-radius: 6px; font-size: 11px; margin-bottom: 10px; font-weight: bold; display: flex; justify-content: space-between; }
+
+        .student-info-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; }
+        .info-input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; font-weight: bold; }
+
+        .group-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .group-tab-btn { background: #f8fafc; border: 2px solid #e2e8f0; padding: 10px 4px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 12px; text-align: center; }
+        .group-tab-btn.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+        .role-banner { background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-top: 8px; font-weight: bold; font-size: 13px; color: #334155; text-align: center; line-height: 1.4; }
+
+        .sub-q-container { display: flex; flex-direction: column; gap: 5px; max-height: 160px; overflow-y: auto; padding-right: 5px; }
+        .sub-q-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 12px; font-weight: 500; line-height: 1.4; }
+        .sub-q-btn.active-common { background: var(--primary-light); color: var(--primary); border-color: var(--primary); font-weight: bold; }
+
+        .panel-box { padding: 15px; border-radius: 12px; box-sizing: border-box; margin-bottom: 15px; }
+        .common-panel { background: #f5f3ff; border: 2px solid #ddd6fe; }
+        .selective-panel { background: #fff5f5; border: 2px solid #fecdd3; }
+
+        .question-display { font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0f172a; line-height: 1.4; background: #fff; padding: 10px; border-radius: 6px; border-left: 5px solid var(--primary); }
+        .question-custom-input { width: 100%; padding: 10px; border: 2px solid var(--accent); border-radius: 8px; font-size: 13px; font-weight: bold; box-sizing: border-box; background: #fff; margin-bottom: 10px; }
+        .answer-textarea { width: 100%; height: 90px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; resize: none; box-sizing: border-box; font-size: 13px; margin-bottom: 8px; line-height: 1.5; background: #fff; }
+        
+        .btn-show { background: #e2e8f0; color: #334155; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .hint-box { margin-top: 10px; padding: 12px; background: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 6px; display: none; font-size: 12px; line-height: 1.5; }
+
+        /* 대시보드 및 수합 액션 구역 */
+        .dashboard-panel { background: var(--dashboard-bg); border: 2px dashed #cbd5e1; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; height: 100%; min-height: 580px; }
+        .db-title { font-size: 15px; font-weight: bold; color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .db-content { background: #fff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px; flex-grow: 1; overflow-y: auto; font-size: 13px; line-height: 1.6; white-space: pre-wrap; color: #334155; }
+        
+        .master-submit-btn { background: #22c55e; color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2); }
+        .master-submit-btn:hover { background: #16a34a; }
+        .btn-copy-all { background: #4f46e5; color: white; border: none; width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; }
+        .btn-copy-all:hover { background: #4338ca; }
+        
+        /* 외부 링크 연동 버튼 스타일 */
+        .btn-gform { background: #673ab7; color: white; border: none; width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; text-align: center; display: block; text-decoration: none; }
+        .btn-gform:hover { background: #512da8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title-area">
+            <h1 id="txt-title">🎨 초현실주의 감상 단계별 활동지</h1>
+            <p id="txt-subtitle">실시간 자동 임시 저장이 가동 중입니다. 모든 내용을 적은 후 한 번에 과제를 제출하세요!</p>
+        </div>
+        <div class="lang-buttons">
+            <button onclick="changeLang('ko')" id="btn-ko" class="active">KO</button>
+            <button onclick="changeLang('en')" id="btn-en">EN</button>
+            <button onclick="changeLang('th')" id="btn-th">TH</button>
+        </div>
+    </div>
+
+    <div class="save-indicator">
+        <span id="txt-save-status">💾 상태: 시스템 실시간 상시 동기화 가동 중</span>
+        <span id="txt-save-time" style="opacity: 0.7;">마지막 저장: 없음</span>
+    </div>
+
+    <div class="main-grid">
+        <div>
+            <div class="section-title" id="txt-step1">1단계: 나의 인적사항 입력</div>
+            <div class="student-info-box">
+                <input type="text" id="global-student-id" class="info-input" placeholder="학번" oninput="updateInputData()">
+                <input type="text" id="global-student-name" class="info-input" placeholder="이름" oninput="updateInputData()">
+            </div>
+
+            <div class="section-title" id="txt-step2">2단계: 내가 맡은 번호(#1 ~ #4) 선택하기</div>
+            <div class="group-tabs">
+                <button class="group-tab-btn active" id="gbtn-1" onclick="selectGroup(1)">#1</button>
+                <button class="group-tab-btn" id="gbtn-2" onclick="selectGroup(2)">#2</button>
+                <button class="group-tab-btn" id="gbtn-3" onclick="selectGroup(3)">#3</button>
+                <button class="group-tab-btn" id="gbtn-4" onclick="selectGroup(4)">#4</button>
+            </div>
+            <div class="role-banner" id="display-role-title">📌 역할 주제 가이드 로드 완료</div>
+
+            <div class="section-title" id="txt-step3">3단계: 공통 질문 목록에서 풀 문제를 터치하세요.</div>
+            <div class="sub-q-container" id="sub-q-list"></div>
+
+            <div class="section-title" id="txt-step4">4단계: [필수] 선택한 공통 질문 답변 작성란</div>
+            <div class="panel-box common-panel">
+                <div class="question-display" id="display-q">질문을 고르면 표시됩니다.</div>
+                <textarea id="student-ans-common" class="answer-textarea" placeholder="공통 질문에 대한 나만의 쉬운 답변을 정리해 보세요!" oninput="updateInputData()"></textarea>
+                <button class="btn btn-show" onclick="toggleHint('common')" id="txt-btn-hint-common">AI 힌트 보기</button>
+                <div id="hint-display-common" class="hint-box"></div>
+            </div>
+
+            <div class="section-title" id="txt-step5">5단계: [선택] 내가 고른 선택 질문 직접 적고 작성 (택 1)</div>
+            <div class="panel-box selective-panel">
+                <input type="text" id="custom-q-input" class="question-custom-input" placeholder="선택 질문 중 내가 고른 문항을 직접 적으세요." oninput="updateInputData()">
+                <textarea id="student-ans-selective" class="answer-textarea" placeholder="선택 질문에 대한 나만의 생각을 정리해 보세요!" oninput="updateInputData()"></textarea>
+                <button class="btn btn-show" onclick="toggleHint('selective')" id="txt-btn-hint-selective">AI 힌트 보기</button>
+                <div id="hint-display-selective" class="hint-box"></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="dashboard-panel">
+                <div class="db-title">
+                    <span>📊 실시간 활동지 통합 수합 대시보드</span>
+                </div>
+                <div class="db-content" id="dashboard-view">내용을 입력하면 여기에 실시간으로 모여 저장 상태를 한눈에 보여줍니다.</div>
+                
+                <button class="master-submit-btn" onclick="submitFullProject()" id="txt-master-submit-btn">🚀 4단계 + 5단계 과제 원클릭 전송 (교사 시트 직통)</button>
+                <button class="btn-copy-all" onclick="copyDashboardText()" id="txt-btn-copy-all">📋 백업용 대시보드 내용 수동 복사</button>
+                
+                <button class="btn-gform" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSdQ3KtIFjzdjLAe6sAt9Ild153Q4h1TWn8A8VDG8Dr1b_qRqw/viewform?usp=sharing&ouid=102949760458738464934', '_blank')" id="txt-btn-gform">📝 구글 설문 작성하기 바로가기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* 🔗 [교사용 필수 설정] 배포하여 얻은 구글 웹 앱 URL 주소를 아래 작은따옴표 사이에 넣어주세요! */
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwJNxgd6Can0Ylz0P5UadGreT1U4YIm3YqoREMz5A-kpikylywtarEPiCq1fYRHYFpq/exec';
+
+    let state = {
+        lang: 'ko',
+        group: 1,
+        subIdx: 0,
+        studentId: '',
+        studentName: '',
+        vault: {
+            1: { common: {}, selectQ: '', selectA: '' },
+            2: { common: {}, selectQ: '', selectA: '' },
+            3: { common: {}, selectQ: '', selectA: '' },
+            4: { common: {}, selectQ: '', selectA: '' }
+        }
+    };
+
+    const langData = {
+        ko: {
+            title: "🎨 초현실주의 감상 단계별 활동지",
+            subtitle: "실시간 자동 임시 저장이 가동 중입니다. 모든 내용을 적은 후 한 번에 과제를 제출하세요!",
+            step1: "1단계: 나의 인적사항 입력",
+            step2: "2단계: 내가 맡은 번호(#1 ~ #4) 선택하기",
+            step3: "3단계: 공통 질문 목록에서 풀 문제를 터치하세요.",
+            step4: "4단계: [필수] 선택한 공통 질문 답변 작성란",
+            step5: "5단계: [선택] 내가 고른 선택 질문 직접 적고 최종 제출 (택 1)",
+            hintBtn: "AI 힌트 보기",
+            masterSubmit: "🚀 4단계 + 5단계 과제 원클릭 전송 (교사 시트 직통)",
+            btnCopyAll: "📋 백업용 대시보드 내용 수동 복사",
+            btnGform: "📝 구글 설문 작성하기 바로가기",
+            placeholderId: "학번 (예: 10301)",
+            placeholderName: "이름",
+            placeholderAnsCommon: "공통 질문에 대한 나만의 쉬운 답변을 정리해 보세요!",
+            placeholderAnsSelect: "선택 질문에 대한 나만의 생각을 정리해 보세요!",
+            customQPlace: "유인물 속 선택 질문 중 내가 고른 문항을 직접 적으세요. (예: 마그리트가 거울을 그린 이유는?)",
+            noQ: "3단계 목록에서 공통 질문을 선택해 주세요.",
+            selectiveHint: "💡 선택형 자유 질문 칸입니다. 위의 핑크색 테두리 상자에 내가 고른 과제 문제를 자유롭게 적고 정답을 풀어내세요.",
+            roles: [
+                "📌 역할 1 주제: 초현실주의와 다다이즘, 마그리트와 뒤샹 소개",
+                "📌 역할 2 주제: 다다이즘과 초현실주의 비교분석",
+                "📌 역할 3 주제: 해석 및 감상 (마그리트 작품 소개 2~3개)",
+                "📌 역할 4 주제: 마무리 (마그리트와 뒤샹의 작가 의도, 해석, 모둠 의견 정리)"
+            ]
+        },
+        en: {
+            title: "🎨 Surrealism Interactive System",
+            subtitle: "Auto-save is running. Submit both parts at once when completed!",
+            step1: "Step 1: Enter Student Info",
+            step2: "Step 2: Choose Your Group Number (#1 ~ #4)",
+            step3: "Step 3: Tap a Common Question from the List Below",
+            step4: "Step 4: [Required] Write Answer for Common Question",
+            step5: "Step 5: [Optional] Type Chosen Selective Question & Submit (Pick 1)",
+            hintBtn: "Show AI Hint",
+            masterSubmit: "🚀 Direct Submit to Teacher Sheet (One-Click)",
+            btnCopyAll: "📋 Manual Copy Dashboard Text",
+            btnGform: "📝 Go to Google Form",
+            placeholderId: "Student ID (e.g., 10301)",
+            placeholderName: "Name",
+            placeholderAnsCommon: "Organize your answer for the common question here.",
+            placeholderAnsSelect: "Organize your thoughts for the selective question here.",
+            customQPlace: "Type your chosen selective question here...",
+            noQ: "Please select a common question from the list in Step 3.",
+            selectiveHint: "💡 Selective question active. Type your question above and write down your statement.",
+            roles: [
+                "📌 Role 1: Intro to Surrealism & Dadaism, Magritte and Duchamp",
+                "📌 Role 2: Comparison of Dadaism & Surrealism",
+                "📌 Role 3: Interpretation & Appreciation of Works (Magritte 2~3 Works)",
+                "📌 Role 4: Conclusion & Author's Intention, Group Consensus"
+            ]
+        },
+        th: {
+            title: "🎨 ใบงานการชื่นชมศิลปะลัทธิเหนือจริง",
+            subtitle: "ระบบบันทึกอัตโนมัติทำงานอยู่ ส่งงานทั้งหมดพร้อมกันในครั้งเดียวเมื่อเสร็จสิ้น!",
+            step1: "ขั้นตอนที่ 1: กรอกข้อมูลนักเรียน",
+            step2: "ขั้นตอนที่ 2: เลือกหมายเลขกลุ่มของคุณ (#1 ~ #4)",
+            step3: "ขั้นตอนที่ 3: แตะเลือกคำถามทั่วไปจากรายการด้านล่าง",
+            step4: "ขั้นตอนที่ 4: [จำเป็น] เขียนคำตอบและส่งคำถามทั่วไป",
+            step5: "ขั้นตอนที่ 5: [เลือกทำ] พิมพ์คำถามเลือกที่คุณเลือกและกดส่ง (ทำ 1 ข้อ)",
+            hintBtn: "ดูแนวทางจาก AI",
+            masterSubmit: "🚀 ส่งตรงไปยังชีตของครู (คลิกเดียว)",
+            btnCopyAll: "📋 คัดลอกข้อความทั้งหมดด้วยตนเอง",
+            btnGform: "📝 ไปที่แบบสอบถาม Google",
+            placeholderId: "รหัสนักเรียน (เช่น 10301)",
+            placeholderName: "ชื่อ",
+            placeholderAnsCommon: "เรียบเรียงคำตอบของคุณสำหรับคำถามทั่วไปที่นี่",
+            placeholderAnsSelect: "เรียบเรียงความคิดของคุณสำหรับคำถามเลือกที่นี่",
+            customQPlace: "พิมพ์คำถามเลือกที่คุณเลือกทำลงในช่องนี้โดยตรง...",
+            noQ: "กรุณาเลือกคำถามทั่วไปจากรายการในขั้นตอนที่ 3ก่อน",
+            selectiveHint: "💡 เปิดใช้งานช่องคำถามเลือกแล้ว พิมพ์คำถามที่คุณเลือกทำลงในช่องสีชมพูด้านบนและเขียนคำตอบด้านล่าง",
+            roles: [
+                "📌 บทบาท 1: แนะนำลัทธิเหนือจริง ดาดาอิสม์ มากริตต์ และดูชองป์",
+                "📌 บทบาท 2: การเปรียบเทียบระหว่างดาดาอิสม์และลัทธิเหนือจริง",
+                "📌 บทบาท 3: การตีความและการชื่นชมผลงานของมากริตต์ (2-3 ภาพ)",
+                "📌 บทบาท 4: สรุป เจตนาของศิลปิน และความเห็นของกลุ่ม"
+            ]
+        }
+    };
+
+    const questionData = {
+        1: [
+            { ko: "1. 초현실주의는 왜 생겨났나요?", en: "1. Why did Surrealism emerge?", th: "1. ทำไมลัทธิเหนือจริงถึงเกิดขึ้น?", a: "전쟁 후 인간의 규칙과 논리에 크게 실망하여, 꿈과 무의식의 세계 속에서 진짜 자유를 찾기 위해 시작되었습니다." },
+            { ko: "2. 다다이즘의 탄생 배경은?", en: "2. What is the background of Dadaism's birth?", th: "2. เบื้องหลังการกำเนิดofดาดาอิสม์คืออะไร?", a: "제1차 세계대전의 비극과 파괴를 보며 전통 미술의 규칙과 가치를 전부 깨부수겠다는 저항 정신에서 생겨났습니다." },
+            { ko: "3. 다다이즘의 이름은 어디서 유래했나요?", en: "3. Where did the name 'Dadaism' originate?", th: "3. ชื่อ 'ดาดาอิสม์' มีที่มาจากไหน?", a: "사전을 열어 무작위로 짚은 프랑스어 목마 단어 '다다(Dada)'에서 유래했으며 무의미함을 뜻합니다." },
+            { ko: "4. 키리코가 마그리트 예술에 준 영향은?", en: "4. How did De Chirico influence Magritte's art?", th: "4. คิริโกส่งผลต่อศิลปะของมากริตต์อย่างไร?", a: "상관없는 엉뚱한 물건들을 배치해 신비로움을 주는 배치법을 알려주어, 생각을 자극하는 시 같은 미술을 하도록 눈뜨게 했습니다." },
+            { ko: "5. 앙드레브르통과 초현실주의의 관계?", en: "5. André Breton's relation to Surrealism?", th: "5. อ็องเดร เบรอตง เกี่ยวข้องอย่างไรกับลัทธิเหนือจริง?", a: "1924년 '초현실주의 선언'을 발표하여 이 운동의 틀과 사상을 최초로 정의하고 이끈 최고 리더입니다." }
+        ],
+        2: [
+            { ko: "1. 다다이즘의 이름은 어디서 유래했나요?", en: "1. Where did the name 'Dadaism' originate?", th: "1. ชื่อ 'ดาดาอิสม์' มีที่มาจากไหน?", a: "우연히 사전에서 뽑은 장난감 목마(다다)에서 유래했으며 기존 미술을 조롱하기 위한 무의미한 단어입니다." },
+            { ko: "2. 다다이즘의 탄생배경은?", en: "2. What is the background of Dadaism's birth?", th: "2. เบื้องหลังการกำเนิด of Dadaism คืออะไร?", a: "1차 세계대전의 비극을 목격하며 이성적인 사회 시스템과 규칙들에 깊은 환멸을 느껴 탄생했습니다." },
+            { ko: "3. 초현실주의와 다다이즘은 어떻게 다른가요?", en: "3. Difference between Surrealism and Dadaism?", th: "3. ลัทธิเหนือจริงกับดาดาอิสม์แตกต่างกันอย่างไร?", a: "다다이즘은 규칙을 '거부하고 파괴'하는 반항아였고, 초현실주의는 그 자리 위에 '꿈과 무의식'의 환상 세계를 건설했습니다." },
+            { ko: "4. 다음의 기법을 설명하세요: 데페이즈망, 데포르마시옹, 콜라주, 오브제, 레디메이드", en: "4. Explain: Depaysement, Deformation, Collage, Objet, Readymade.", th: "4. อธิบายเทคนิคต่อไปนี้", a: "[데페이즈망] 사물을 엉뚱한 자리에 두기 / [데포르마시옹] 형태 왜곡 / [콜라주] 재료 붙이기 / [오브제] 물건을 예술로 쓰기 / [레디메이드] 기성품에 의미 부여" }
+        ],
+        3: [
+            { ko: "1. 대표 작품 2~3개를 선정하여 각 작품의 주제와 의미를 분석하세요", en: "1. Select 2-3 representative works and analyze themes.", th: "1. วิเคราะห์ผลงานเด่นของมากริตต์ (2-3 ภาพ)", a: "'이것은 파이프가 아니다'로 이미지와 언어의 모순을 폭로하고, '골콘다'로 중산모 신사가 비처럼 내리는 신비감을 연출했습니다." },
+            { ko: "2. 마그리트가 회화에서 시도한 것은?", en: "2. What did Magritte attempt in painting?", th: "2. มากริตต์พยายามทำอะไรในภาพวาด?", a: "단순히 대상을 복사하는 정교한 기술을 지우고, 그림을 보는 관객이 머리를 써서 철학적인 의문을 품게 만드는 미술을 시도했습니다." },
+            { ko: "3. 마그리트가 일상의 사물을 그린 이유는?", en: "3. Why did Magritte paint everyday objects?", th: "3. ทำไมมากริตต์ถึงวาดสิ่งของในชีวิตประจำวัน?", a: "사과, 돌처럼 너무 평범해서 평소 눈여겨보지 않던 물건들을 기발하게 재배치하여 일상을 완전히 새롭게 보게 하려는 의도입니다." },
+            { ko: "4. 마그리트가 오브제 배치로 깨뜨린 것은?", en: "4. What did Magritte shatter with object placement?", th: "4. มากริตต์ทำลายอะไรด้วยการจัดวางสิ่งของ?", a: "사람들이 평소 한 치의 의심도 없이 당연하다고 믿어온 일반적인 '상식', '고정관념', 사물 간의 '당연한 규칙'을 깨부수었습니다." }
+        ],
+        4: [
+            { ko: "1. 마그리트가 생각한 예술가의 중요한 역할은?", en: "1. What is the artist's crucial role according to Magritte?", th: "1. บทบาทสำคัญของศิลปินในมุมมองของมากริตต์คืออะไร?", a: "풍경을 똑같이 베껴 그리는 복사기가 아니라, 세계 이면에 숨겨진 신비와 미스터리를 관객들이 스스로 발견하게 돕는 동반자입니다." },
+            { ko: "2. 뒤샹의 작품세계 특징은?", en: "2. Traits of Duchamp's art world?", th: "2. ลักษณะเด่นของโลกศิลปะแบบดูชองป์คืออะไร?", a: "눈으로 보기에만 예쁜 미술을 완전히 거부하고, 작품에 담긴 작가의 획기적인 생각과 개념이 중심이 되는 '개념 미술'을 열었습니다." },
+            { ko: "3. 뒤샹과 마그리트가 관객에게 던진 메세지는?", en: "3. Message from Duchamp and Magritte?", th: "3. ข้อความที่ดูชองป์และมากริตต์ส่งถึงผู้ชมคืออะไร?", a: "작품을 눈으로만 슬쩍 보고 예쁘다고 하지 말고, '뇌'를 활성화해 우리가 사는 사회의 상식을 끊임없이 의심하라는 것입니다." },
+            { ko: "4. 다다이즘이 현대 미술에 끼친 영향은?", en: "4. Dadaism's impact on modern art?", th: "4. ดาดาอิสม์ส่งผลต่อศิลปะร่วมสมัยอย่างไร?", a: "미술은 무조건 캔버스 위에 물감으로 그려야 한다는 틀을 부숴버려, 현대 작가들이 세상의 모든 재료와 돌발 행동까지 예술이 될 수 있는 자유를 주었습니다." },
+            { ko: "5. 2020년대에 초현실주의가 필요한 이유는?", en: "5. Why is Surrealism needed in the 2020s?", th: "5. ทำไมลัทธิเหนือจริงถึงจำเป็นในยุค 2020?", a: "가상현실과 AI 가짜뉴스가 판치는 오늘날, 눈앞의 현상을 당연하게 받아들이지 않고 나만의 주도적인 시선으로 관찰하는 힘이 필요하기 때문입니다." }
+        ]
+    };
+
+    function loadStorageData() {
+        try {
+            const saved = localStorage.getItem('surrealism_workspace_v5_final_leakproof');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && typeof parsed === 'object') {
+                    if (parsed.studentId) state.studentId = parsed.studentId;
+                    if (parsed.studentName) state.studentName = parsed.studentName;
+                    if (parsed.group && [1, 2, 3, 4].includes(Number(parsed.group))) state.group = Number(parsed.group);
+                    if (parsed.subIdx !== undefined) state.subIdx = Number(parsed.subIdx);
+                    if (parsed.lang) state.lang = parsed.lang;
+                    
+                    if (parsed.vault && typeof parsed.vault === 'object') {
+                        for (let i = 1; i <= 4; i++) {
+                            if (parsed.vault[i] && typeof parsed.vault[i] === 'object') {
+                                state.vault[i].common = parsed.vault[i].common || {};
+                                state.vault[i].selectQ = parsed.vault[i].selectQ || '';
+                                state.vault[i].selectA = parsed.vault[i].selectA || '';
+                            }
+                        }
+                    }
+                }
+            }
+        } catch(e) { console.log("복구 가동"); }
+        
+        if(document.getElementById('global-student-id')) document.getElementById('global-student-id').value = state.studentId;
+        if(document.getElementById('global-student-name')) document.getElementById('global-student-name').value = state.studentName;
+        
+        selectGroup(state.group);
+    }
+
+    function renderPage() {
+        const lang = langData[state.lang] || langData['ko']; 
+        
+        if(document.getElementById('txt-title')) document.getElementById('txt-title').innerText = lang.title;
+        if(document.getElementById('txt-subtitle')) document.getElementById('txt-subtitle').innerText = lang.subtitle;
+        if(document.getElementById('txt-step1')) document.getElementById('txt-step1').innerText = lang.step1;
+        if(document.getElementById('txt-step2')) document.getElementById('txt-step2').innerText = lang.step2;
+        if(document.getElementById('txt-step3')) document.getElementById('txt-step3').innerText = lang.step3;
+        if(document.getElementById('txt-step4')) document.getElementById('txt-step4').innerText = lang.step4;
+        if(document.getElementById('txt-step5')) document.getElementById('txt-step5').innerText = lang.step5;
+        if(document.getElementById('txt-btn-hint-common')) document.getElementById('txt-btn-hint-common').innerText = lang.hintBtn;
+        if(document.getElementById('txt-btn-hint-selective')) document.getElementById('txt-btn-hint-selective').innerText = lang.hintBtn;
+        if(document.getElementById('txt-master-submit-btn')) document.getElementById('txt-master-submit-btn').innerText = lang.masterSubmit;
+        if(document.getElementById('txt-btn-copy-all')) document.getElementById('txt-btn-copy-all').innerText = lang.btnCopyAll;
+        if(document.getElementById('txt-btn-gform')) document.getElementById('txt-btn-gform').innerText = lang.btnGform;
+        
+        if(document.getElementById('global-student-id')) document.getElementById('global-student-id').placeholder = lang.placeholderId;
+        if(document.getElementById('global-student-name')) document.getElementById('global-student-name').placeholder = lang.placeholderName;
+        if(document.getElementById('student-ans-common')) document.getElementById('student-ans-common').placeholder = lang.placeholderAnsCommon;
+        if(document.getElementById('student-ans-selective')) document.getElementById('student-ans-selective').placeholder = lang.placeholderAnsSelect;
+        if(document.getElementById('custom-q-input')) document.getElementById('custom-q-input').placeholder = lang.customQPlace;
+
+        if(document.getElementById('display-role-title')) {
+            document.getElementById('display-role-title').innerText = lang.roles[state.group - 1] || langData['ko'].roles[state.group - 1];
+        }
+
+        const qContainer = document.getElementById('sub-q-list');
+        if (qContainer) {
+            qContainer.innerHTML = '';
+            const qList = questionData[state.group] || [];
+            qList.forEach((item, index) => {
+                const btn = document.createElement('button');
+                btn.className = `sub-q-btn ${index === state.subIdx ? 'active-common' : ''}`;
+                btn.innerText = item[state.lang] || item['ko'] || ''; 
+                btn.onclick = () => selectSubQuestion(index);
+                qContainer.appendChild(btn);
+            });
+        }
+    }
+
+    function changeLang(l) {
+        state.lang = l;
+        document.getElementById('btn-ko').classList.remove('active');
+        document.getElementById('btn-en').classList.remove('active');
+        document.getElementById('btn-th').classList.remove('active');
+        document.getElementById(`btn-${l}`).classList.add('active');
+        selectGroup(state.group);
+    }
+
+    function selectGroup(groupNum) {
+        state.group = groupNum;
+        state.subIdx = 0; 
+        
+        for(let i=1; i<=4; i++) {
+            const btn = document.getElementById(`gbtn-${i}`);
+            if(btn) {
+                if(i === groupNum) btn.classList.add('active');
+                else btn.classList.remove('active');
+            }
+        }
+        
+        renderPage();
+        
+        if(document.getElementById('custom-q-input')) document.getElementById('custom-q-input').value = state.vault[groupNum].selectQ || '';
+        if(document.getElementById('student-ans-selective')) document.getElementById('student-ans-selective').value = state.vault[groupNum].selectA || '';
+        
+        selectSubQuestion(0);
+    }
+
+    function selectSubQuestion(index) {
+        state.subIdx = index;
+        const qList = questionData[state.group] || [];
+        if(qList[index]) {
+            document.getElementById('display-q').innerText = qList[index][state.lang] || qList[index]['ko'];
+            document.getElementById('student-ans-common').value = state.vault[state.group].common[index] || '';
+        }
+        
+        const buttons = document.querySelectorAll('.sub-q-btn');
+        buttons.forEach((btn, idx) => {
+            if(idx === index) btn.classList.add('active-common');
+            else btn.classList.remove('active-common');
+        });
+        
+        document.getElementById('hint-display-common').style.display = 'none';
+        updateDashboard();
+    }
+
+    function updateInputData() {
+        state.studentId = document.getElementById('global-student-id').value;
+        state.studentName = document.getElementById('global-student-name').value;
+        
+        state.vault[state.group].common[state.subIdx] = document.getElementById('student-ans-common').value;
+        state.vault[state.group].selectQ = document.getElementById('custom-q-input').value;
+        state.vault[state.group].selectA = document.getElementById('student-ans-selective').value;
+        
+        try {
+            localStorage.setItem('surrealism_workspace_v5_final_leakproof', JSON.stringify(state));
+            const now = new Date();
+            document.getElementById('txt-save-time').innerText = `마지막 저장: ${now.toLocaleTimeString()}`;
+        } catch(e) {}
+        
+        updateDashboard();
+    }
+
+    function getDashboardText() {
+        const lang = langData[state.lang] || langData['ko'];
+        let displayStr = `[인적사항]\n학번: ${state.studentId || '(미입력)'} / 이름: ${state.studentName || '(미입력)'}\n\n`;
+        displayStr += `[선택 역할]\n#${state.group} - ${lang.roles[state.group - 1]}\n\n`;
+        
+        displayStr += `[4단계 공통 질문 작성내역]\n`;
+        const qList = questionData[state.group] || [];
+        qList.forEach((item, index) => {
+            const qText = item[state.lang] || item['ko'];
+            const ans = state.vault[state.group].common[index] || '';
+            displayStr += `Q${index+1}. ${qText}\n👉 답: ${ans || '(미작성)'}\n`;
+        });
+        
+        displayStr += `\n[5단계 선택 질문 작성내역]\n`;
+        displayStr += `Q. ${state.vault[state.group].selectQ || '(질문 미입력)'}\n👉 답: ${state.vault[state.group].selectA || '(답변 미작성)'}`;
+        return displayStr;
+    }
+
+    function updateDashboard() {
+        if(document.getElementById('dashboard-view')) {
+            document.getElementById('dashboard-view').innerText = getDashboardText();
+        }
+    }
+
+    function toggleHint(type) {
+        const targetId = type === 'common' ? 'hint-display-common' : 'hint-display-selective';
+        const box = document.getElementById(targetId);
+        if(!box) return;
+        
+        if(box.style.display === 'block') {
+            box.style.display = 'none';
+        } else {
+            box.style.display = 'block';
+            if(type === 'common') {
+                const qList = questionData[state.group] || [];
+                box.innerText = qList[state.subIdx] ? `💡 AI 예시 방향: ${qList[state.subIdx].a}` : '질문을 먼저 고르세요.';
+            } else {
+                box.innerText = langData[state.lang].selectiveHint;
+            }
+        }
+    }
+
+    function copyToClipboardFallback(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.top = "0"; textArea.style.left = "0"; textArea.style.position = "fixed"; textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus(); textArea.select();
+        try { document.execCommand('copy'); } catch (err) {}
+        document.body.removeChild(textArea);
+    }
+
+    /* 🚀 핵심 업그레이드: 백그라운드로 안전하게 구글시트 API 전송 */
+    function submitFullProject() {
+        if(!state.studentId || !state.studentName) {
+            alert(state.lang === 'ko' ? '학번과 이름을 먼저 입력해주세요!' : 'Please enter your Student ID and Name!');
+            return;
+        }
+
+        if(GAS_URL === '여기에_복사한_웹_앱_URL_주소를_넣으세요') {
+            alert('설정 안내: 소스코드 최상단에 선생님 구글 웹 앱 URL 주소를 입력해야 전송 기능이 동작합니다.');
+            return;
+        }
+
+        const organizedText = getDashboardText();
+
+        // fetch 옵션 조율을 통해 로컬 파일 환경 보안 우회 및 제출 신호 송신
+        fetch(GAS_URL, {
+            method: 'POST',
+            mode: 'no-cors', // CORS 제한 무조건 우회 통과 패치
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                studentId: state.studentId,
+                studentName: state.studentName,
+                group: state.group,
+                fullContent: organizedText
+            })
+        }).then(() => {
+            const successMsg = state.lang === 'ko'
+                ? '🎉 과제가 교사 전용 스프레드시트로 안전하게 비공개 전송되었습니다!\n다른 친구들은 내가 작성한 내용을 볼 수 없으니 안심하세요.'
+                : 'Assignment submitted safely to the teacher sheet!';
+            alert(successMsg);
+        }).catch((err) => {
+            alert('전송 실패: 시스템 환경 오류가 발생했습니다. 수동 복사 기능을 사용해 주세요.');
+        });
+    }
+
+    function copyDashboardText() {
+        const organizedText = getDashboardText();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(organizedText).then(() => {
+                alert('📋 전체 내용이 클립보드에 복사되었습니다.');
+            }).catch(() => {
+                copyToClipboardFallback(organizedText);
+                alert('📋 전체 내용이 클립보드에 복사되었습니다.');
+            });
+        } else {
+            copyToClipboardFallback(organizedText);
+            alert('📋 전체 내용이 클립보드에 복사되었습니다.');
+        }
+    }
+
+    window.onload = loadStorageData;
+</script>
+</body>
+</html>
